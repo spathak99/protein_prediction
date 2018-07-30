@@ -4,6 +4,9 @@ from __future__ import print_function
 import numpy as np
 import gzip
 import tensorflow as tf
+import tensorflow.contrib.eager as tfe
+
+tf.enable_eager_execution()
 
 learning_rate = 1e-3
 batch_size = 100
@@ -12,20 +15,34 @@ dataindex = range(22)
 labelindex = range(22, 32)
 training_labels = data[:5600, :, labelindex]
 training_data = data[:5600, :, dataindex]
+
 training_data.shape = [5600,700,22]
 
 
-x = tf.placeholder(tf.float32, shape=[batch_size,training_data.shape[1],training_data.shape[2]])
-y = tf.placeholder(tf.float32, shape=[batch_size,training_labels.shape[1],training_labels.shape[2]])
+#x = tf.placeholder(tf.float32, shape=[None,training_data.shape[1],training_data.shape[2]])
+#y = tf.placeholder(tf.float32, shape=[None,training_labels.shape[1],training_labels.shape[2]])
 
-def train():
+output_dim=training_labels.shape[2]
+
+a  = tfe.Variable(tf.random_normal([batch_size,output_dim]))
+wa = tfe.Variable(tf.random_normal([data.shape[1], output_dim, a.shape[1].value]))
+ba = tfe.Variable(tf.random_normal([data.shape[1], wa.shape[1].value, 1]))
+wx = tfe.Variable(tf.random_normal([data.shape[1], output_dim, training_data.shape[2]]))
+bx = tfe.Variable(tf.random_normal([data.shape[1], wx.shape[1].value, 1]))
+wy = tfe.Variable(tf.random_normal([data.shape[1], batch_size, batch_size]))
+by = tfe.Variable(tf.random_normal([data.shape[1], wy.shape[1].value, 1]))
+
+def train(x, y):
     preds = forward_prop(x)
+    preds = tf.convert_to_tensor(preds,dtype=tf.float32)
+    print(preds.dtype)
     preds = tf.transpose(preds,[1,0,2])
+    print(preds.shape)
     cost = tf.reduce_mean(
         tf.reduce_sum(
             tf.subtract(
                 tf.multiply(
-                    tf.multiply(-1,y),
+                    tf.cast(tf.multiply(-1,y),tf.float32),
                     tf.log(preds)),
                 tf.multiply(
                     tf.subtract(1, y),
@@ -37,50 +54,46 @@ def train():
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
     return optimizer, preds
 
-def timestep(data, output_dim=training_labels.shape[2], a = tf.Variable(tf.random_normal([batch_size,training_labels. shape[2]]))):
+def timestep(data, stepindex=0, nexta = a):
 
-    wa = tf.Variable(tf.random_normal([output_dim, a.shape[1].value]))
-    ba = tf.Variable(tf.random_normal([wa.shape[0].value,1]))
-    wx = tf.Variable(tf.random_normal([output_dim,data.shape[1].value]))
-    bx = tf.Variable(tf.random_normal([wx.shape[0].value,1]))
-    wy = tf.Variable(tf.random_normal([data.shape[0].value,data.shape[0].value]))
-    by = tf.Variable(tf.random_normal([wy.shape[0].value, 1]))
     a1 = [tf.sigmoid(
         tf.add(
-            tf.matmul(wa,
+            tf.matmul(wa[stepindex],
                       tf.transpose(a)),
-            ba)),
+            ba[stepindex])),
         tf.sigmoid(
             tf.add(
-                tf.matmul(wx,
+                tf.matmul(wx[stepindex],
                           tf.transpose(data)),
-                bx))]
+                bx[stepindex]))]
 
     conc = tf.add(a1[0],a1[1])
     print(conc.shape)
 
-    yh = tf.nn.softmax(tf.add(tf.matmul(wy, tf.transpose(conc)), by))
+    yh = tf.nn.softmax(tf.add(tf.matmul(wy[stepindex], tf.transpose(conc)), by[stepindex]))
     print(yh.shape)
     return tf.transpose(conc), yh
 
 
 def forward_prop(data):
-    preds = []
+    preds = []#tfe.Variable([], dtype=tf.float32) #tfe.Variable(dtype=tf.float32, graph=None)
     first = True
-    a0,y0 = timestep(tf.transpose(data,[1,0,2])[0])
-    preds = tf.map_fn(lambda x: timestep(x),tf.transpose(data,[1,0,2])[1:])
+    curr_a,curr_y = timestep(tf.transpose(data,[1,0,2])[0])
+    preds.append(curr_y)
+    #return tf.map_fn(lambda x: timestep(x),tf.transpose(data,[1,0,2])[1:])
     for i in tf.transpose(data,[1,0,2]):
         if first:
             first = False
         else:
-            a,y = timestep(i,a=a0)
-            preds.append(y)
+            curr_a,curr_y = timestep(i,nexta=curr_a)
+            preds.append(curr_y)
+
     return preds
 
 with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
+   # sess.run(tf.contrib.eager.global_variables_initializer())
     for i in range(0, training_labels.shape[0], batch_size):
-        opt, preds = sess.run(train(), feed_dict={x:training_data[i:i+batch_size],y:training_labels[i,i+batch_size]})
+        opt, preds = sess.run(train(training_data[i:i+batch_size],training_labels[i,i+batch_size]))
 
 
 
