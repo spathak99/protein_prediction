@@ -35,9 +35,10 @@ by = tfe.Variable(tf.random_normal([data.shape[1], wy.shape[1].value, 1]))
 def train(x, y):
     preds = forward_prop(x)
     preds = tf.convert_to_tensor(preds,dtype=tf.float32)
-    print(preds.dtype)
+    #print(preds.dtype)
     preds = tf.transpose(preds,[1,0,2])
-    print(preds.shape)
+   # print(preds.shape)
+   # print(y.shape)
     cost = tf.reduce_mean(
         tf.reduce_sum(
             tf.subtract(
@@ -51,11 +52,9 @@ def train(x, y):
             axis=1),
         axis=0)
     print(cost)
-    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
-    return optimizer, preds
+    return cost
 
 def timestep(data, stepindex=0, nexta = a):
-
     a1 = [tf.sigmoid(
         tf.add(
             tf.matmul(wa[stepindex],
@@ -68,10 +67,10 @@ def timestep(data, stepindex=0, nexta = a):
                 bx[stepindex]))]
 
     conc = tf.add(a1[0],a1[1])
-    print(conc.shape)
+    #print(conc.shape)
 
     yh = tf.nn.softmax(tf.add(tf.matmul(wy[stepindex], tf.transpose(conc)), by[stepindex]))
-    print(yh.shape)
+    #print(yh.shape)
     return tf.transpose(conc), yh
 
 
@@ -87,15 +86,38 @@ def forward_prop(data):
         else:
             curr_a,curr_y = timestep(i,nexta=curr_a)
             preds.append(curr_y)
-
     return preds
 
+
+
+
+optimizer = tf.train.AdamOptimizer(learning_rate = 1e-3)
+for i in range(0, training_labels.shape[0], batch_size):
+    train_batch = training_data[i:i + batch_size, :, :]
+    label_batch = training_labels[i:i + batch_size, :, :]
+    optimizer.minimize(lambda: train(tf.reshape(train_batch,
+            [train_batch.shape[0],train_batch.shape[1],train_batch.shape[2]]),
+            tf.reshape(label_batch,
+            [label_batch.shape[0],label_batch.shape[1],
+           label_batch.shape[2]])))
+
+
+
+
+"""
 with tf.Session() as sess:
    # sess.run(tf.contrib.eager.global_variables_initializer())
+    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
     for i in range(0, training_labels.shape[0], batch_size):
-        opt, preds = sess.run(train(training_data[i:i+batch_size],training_labels[i,i+batch_size]))
-
-
+        print("training label shape: ", training_labels.shape)
+        print("shape of fed data",training_data[i,i+batch_size].shape)
+        train_batch = training_data[i:i+batch_size,:,:]
+        label_batch = training_labels[i:i+batch_size,:,:]
+        opt, preds = sess.run(train(tf.reshape(train_batch,
+            [train_batch.shape[0],train_batch.shape[1],train_batch.shape[2]]),
+            tf.reshape(label_batch,
+            [label_batch.shape[0],label_batch.shape[1],
+           label_batch.shape[2]])))"""
 
 
 
