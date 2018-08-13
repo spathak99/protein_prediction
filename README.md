@@ -4,13 +4,12 @@ Accuracy is currently at 81%
 Built by @neelsankaran and I
 
 
-
 Input Data: Protein Primary Structure | Shape: (5600(#examples),700(#amino acids in sequence),22(#features in embeding))
 Labels: Protein Secondary Structure | Shape: (5600(#examples),700(#amino acids in sequence),10(#features in embeding))
-
-
-
-                              Y^(0)         | LSTM Updates With Previous Relevant Data |
+Loss Function: Cross Entropy
+         
+         
+                             Y^(0)      | LSTM Updates A With Previous Relevant Data |
                                ^                              ^
                                |                              |             Next Y^
                                |                              |                ^
@@ -18,7 +17,7 @@ Labels: Protein Secondary Structure | Shape: (5600(#examples),700(#amino acids i
              |                                      |         |         -----------------
              |                                      |         |         |               |
              | Y-Hat = tanH(conc*Wy'+By)            |         |         |               |
-A(0)  ---->  | nextA = tanH((In*Wx'+Bx)+(A*Wa'+Ba)) | ----> nextA ----> | NextTimeStep  | -> N=700 -> Calc Cost With All Y^'s |
+    A(0) ->  | nextA = tanH((In*Wx'+Bx)+(A*Wa'+Ba)) | ----> nextA ----> | NextTimeStep  |....N=700 -> Calc Cost With All Y^'s |
              |                                      |                   |               |                                     |
              |                                      |                   |               |                                     |
              |                                      |                   |               |                                     |
@@ -28,4 +27,4 @@ A(0)  ---->  | nextA = tanH((In*Wx'+Bx)+(A*Wa'+Ba)) | ----> nextA ----> | NextTi
                                 |                                           Next Input                                        |
                            Input Data(0)                                                                                      |                                                                                                                               |
                                                  Gradient From Cost Flows Back                                                |
- <-----------------------------------------------------------------------------------------------------------------------------
+         <---------------------------------------------------------------------------------------------------------------------
