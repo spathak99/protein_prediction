@@ -16,7 +16,7 @@ Loss Function: Cross Entropy
              ----------------------------------------         |                |
              |                                      |         |         -----------------
              |                                      |         |         |               |
-             | Y-Hat = tanH(conc*Wy'+By)            |         |         |               |
+             | Y^ = tanH(conc*Wy'+By)               |         |         |               |
     A(0) ->  | nextA = tanH((In*Wx'+Bx)+(A*Wa'+Ba)) | ----> nextA ----> | NextTimeStep  |....N=700 -> Calc Cost With All Y^'s |
              |                                      |                   |               |                                     |
              |                                      |                   |               |                                     |
