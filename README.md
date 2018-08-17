@@ -1,17 +1,17 @@
-[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
-
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
 
+## Recurrent Neural Network with Timestep and LSTM Cell for Protein Secondary Structure Prediction
 
-A reccurent neural network with an LSTM for protein secondary structure prediction
-built without use of any framework besides tensorflow's low level API (see tf.matmul,tf.add, etc).
+Built without use of any framework besides tensorflow's low level API (see tf.matmul,tf.add, etc).
 Accuracy is currently at 81%
 Built by @neelsankaran and I
 
-
+## Data,Labels,and Loss
 Input Data: Protein Primary Structure | Shape: (5600(#examples),700(#amino acids in sequence),22(#features in embeding))
 Labels: Protein Secondary Structure | Shape: (5600(#examples),700(#amino acids in sequence),10(#features in embeding))
 Loss Function: Cross Entropy
+
+## Diagram w/ Explanation
          
          
                              Y^(0)      | LSTM Updates A With Previous Relevant Data |
