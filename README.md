@@ -8,7 +8,7 @@ Built by @neelsankaran and I
 
 ## Data,Labels,and Loss
 Input Data: Protein Primary Structure | Shape: (5600(examples),700(amino acids in sequence),22(features in embeding))
-Labels: Protein Secondary Structure | Shape: (5600(#xamples),700(amino acids in sequence),10(features in embeding))
+Labels: Protein Secondary Structure | Shape: (5600(examples),700(amino acids in sequence),10(features in embeding))
 Loss Function: Cross Entropy
 
 ## Diagram w/ Explanation
