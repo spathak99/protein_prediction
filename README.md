@@ -1,3 +1,7 @@
+| **Build**** | [![Build status](https://ci.appveyor.com/api/projects/status/pjxh5g91jpbh7t84?svg=true)](https://ci.appveyor.com/project/tygerbytes/resourcefitness) |
+
+
+
 A reccurent neural network with an LSTM for protein secondary structure prediction
 built without use of any framework besides tensorflow's low level API (see tf.matmul,tf.add, etc).
 Accuracy is currently at 81%
