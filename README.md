@@ -3,7 +3,7 @@
 ## Recurrent Neural Network with Timestep and LSTM Cell for Protein Secondary Structure Prediction
 
 Built without use of any framework besides tensorflow's low level API (see tf.matmul,tf.add, etc).
-Accuracy is currently at 81%
+F1 Score is currently at 82%
 Built by @neelsankaran and I
 
 ## Data,Labels,and Loss
